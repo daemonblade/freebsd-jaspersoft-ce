@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.jaspersoft.studio.foundation.bundles"
+      label="Jaspersoft Studio Required Bundles Feature"
+      version="1.0.15"
+      provider-name="TIBCO Software Inc.">
+
+   <description url="http://community.jaspersoft.com/project/jaspersoft-studio">
+      Required bundles to run correctly TIBCO Jaspersoft Studio
+   </description>
+
+   <copyright>
+      Copyright (C) 2010 - 2020. TIBCO Software Inc.
+   </copyright>
+
+   <url>
+      <update label="TIBCO Jaspersoft Studio update site" url="http://jasperstudio.sf.net/updates"/>
+      <discovery label="TIBCO Jaspersoft Studio Community Edition" url="http://community.jaspersoft.com/project/jaspersoft-studio"/>
+   </url>
+
+   <includes
+         id="org.eclipse.nebula.widgets.cdatetime.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.nebula.cwt.feature"
+         version="0.0.0"/>
+
+   <requires>
+      <import plugin="org.w3c.dom.svg" version="1.1.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.logging" version="1.2.0" match="greaterOrEqual"/>
+      <import plugin="org.slf4j.api" version="1.7.2" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="org.krysalis.barcode4j"
+         download-size="0"
+         install-size="0"
+         version="2.1.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.barbecue"
+         download-size="0"
+         install-size="0"
+         version="1.5.0.beta1_b02"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.beanshell"
+         download-size="0"
+         install-size="0"
+         version="2.0.0.b6_02"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.commons-beanutils"
+         download-size="0"
+         install-size="0"
+         version="1.9.3.201709071631"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.commons-digester"
+         download-size="0"
+         install-size="0"
+         version="2.1.0.201709071631"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.itext"
+         download-size="0"
+         install-size="0"
+         version="2.1.7.js7_b01"/>
+
+   <plugin
+         id="joda-time"
+         download-size="0"
+         install-size="0"
+         version="2.9.9"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.servicemix.bundles.antlr"
+         download-size="0"
+         install-size="0"
+         version="2.7.7.5"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.servicemix.bundles.jaxen"
+         download-size="0"
+         install-size="0"
+         version="1.1.6.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.servicemix.bundles.rhino"
+         download-size="0"
+         install-size="0"
+         version="1.7.11.1"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.xmlbeans"
+         download-size="0"
+         install-size="0"
+         version="3.1.0.b01"
+         unpack="false"/>
+
+   <plugin
+         id="org.dom4j"
+         download-size="0"
+         install-size="0"
+         version="1.6.1.v201312101416"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.bouncycastle"
+         download-size="0"
+         install-size="0"
+         version="1.62.0.jdk15on-b01"
+         unpack="false"/>
+
+   <plugin
+         id="org.w3c.dom.svg.patch"
+         download-size="0"
+         install-size="0"
+         version="1.1.0.b02"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.jfree.jcommon-osgi"
+         download-size="0"
+         install-size="0"
+         version="1.0.23"
+         unpack="false"/>
+
+   <plugin
+         id="org.jfree.chart-osgi"
+         download-size="0"
+         install-size="0"
+         version="1.0.19"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.collections"
+         download-size="0"
+         install-size="0"
+         version="3.2.2.v201511171945"
+         unpack="false"/>
+
+   <plugin
+         id="groovy-all"
+         download-size="0"
+         install-size="0"
+         version="2.4.16"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.batik"
+         download-size="0"
+         install-size="0"
+         version="1.11.0.b02"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.jackson"
+         download-size="0"
+         install-size="0"
+         version="2.10.0.b01"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.lang3"
+         download-size="0"
+         install-size="0"
+         version="3.8.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.math3"
+         download-size="0"
+         install-size="0"
+         version="3.6.1"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.commons-codec"
+         download-size="0"
+         install-size="0"
+         version="1.13.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.commons-collections4"
+         download-size="0"
+         install-size="0"
+         version="4.4.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.xml.security"
+         download-size="0"
+         install-size="0"
+         version="1.4.2.v201005080400"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.commons-compress"
+         download-size="0"
+         install-size="0"
+         version="1.19.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.poi"
+         download-size="0"
+         install-size="0"
+         version="4.1.1.b01"/>
+
+   <plugin
+         id="com.jaspersoft.studio.bundles.cdt-java-client"
+         download-size="0"
+         install-size="0"
+         version="2.0.0.b01"/>
+
+   <plugin
+         id="com.google.zxing.core"
+         download-size="0"
+         install-size="0"
+         version="3.4.0"
+         unpack="false"/>
+
+</feature>

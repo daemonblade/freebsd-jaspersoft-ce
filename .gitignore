@@ -1,0 +1,6 @@
+# distribution archive
+distfiles
+
+# Build artifacts
+/maven-repo.*
+/build-*.log
