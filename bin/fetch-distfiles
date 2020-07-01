@@ -3,7 +3,7 @@
 #
 # Copy distfiles from github.com
 #
-HTTP_BASE="https://github.com/TIBCOSoftware/jaspersoft-studio-ce/archive/6.13.0_ce.tar.gz
+HTTP_BASE="https://github.com/TIBCOSoftware"
 
 if [ ! -x bin/$(basename $0) ]
 then
@@ -22,7 +22,9 @@ for DIST in ${DISTFILES}
 do
 	PROJECT=$(echo ${DIST} | cut -f1 -d:)
 	TAG=$(echo ${DIST} | cut -f2 -d:)
-	if [ ! -f distfiles/${PROJECT-${TAG}.tar.gz ]
+	DIST="distfiles/${PROJECT}-${TAG}.tar.gz"
+	if [ ! -f ${DIST} ]
 	then
+		fetch ${HTTP_BASE}/${PROJECT}/releases/tag/${TAG} -o ${DIST}
 	fi
 done
