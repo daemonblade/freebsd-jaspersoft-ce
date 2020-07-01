@@ -25,6 +25,6 @@ do
 	DIST="distfiles/${PROJECT}-${TAG}.tar.gz"
 	if [ ! -f ${DIST} ]
 	then
-		fetch ${HTTP_BASE}/${PROJECT}/releases/tag/${TAG} -o ${DIST}
+		fetch ${HTTP_BASE}/${PROJECT}/archive/${TAG}.tar.gz -o ${DIST}
 	fi
 done
