@@ -1,0 +1,5 @@
+#
+# Configuration
+#
+JASPERREPORTS_TAG="6.13.0"
+JASPERSTUDIO_TAG="6.13.0_ce"

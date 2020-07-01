@@ -1,0 +1,28 @@
+#!/bin/sh
+#set -x
+#
+# Copy distfiles from github.com
+#
+HTTP_BASE="https://github.com/TIBCOSoftware/jaspersoft-studio-ce/archive/6.13.0_ce.tar.gz
+
+if [ ! -x bin/$(basename $0) ]
+then
+	echo "ERROR: Run this from top level"
+	exit 1
+fi
+. ./config.sh
+
+DISTFILES="
+	jasperreports:${JASPERREPORTS_TAG}
+	jaspersoft-studio-ce:${JASPERSTUDIO_TAG}
+"
+mkdir -p distfiles
+
+for DIST in ${DISTFILES}
+do
+	PROJECT=$(echo ${DIST} | cut -f1 -d:)
+	TAG=$(echo ${DIST} | cut -f2 -d:)
+	if [ ! -f distfiles/${PROJECT-${TAG}.tar.gz ]
+	then
+	fi
+done
