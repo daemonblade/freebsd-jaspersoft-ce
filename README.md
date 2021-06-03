@@ -13,7 +13,7 @@ FreeBSD's /usr/ports/devel/jaspersoft-studio.
 # Prerequisite Ports
 
 * devel/maven
-* java/openjdk8
+* java/openjdk11
 
 # Workflow
 
