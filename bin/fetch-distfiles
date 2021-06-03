@@ -3,7 +3,8 @@
 #
 # Copy distfiles from github.com
 #
-HTTP_BASE="https://github.com/TIBCOSoftware"
+HTTP_BASE="https://github.com/TIBCOSoftware/jaspersoft-studio-ce"
+DISTDIR="distfiles"
 
 if [ ! -x bin/$(basename $0) ]
 then
@@ -12,19 +13,5 @@ then
 fi
 . ./config.sh
 
-DISTFILES="
-	jasperreports:${JASPERREPORTS_TAG}
-	jaspersoft-studio-ce:${JASPERSTUDIO_TAG}
-"
-mkdir -p distfiles
-
-for DIST in ${DISTFILES}
-do
-	PROJECT=$(echo ${DIST} | cut -f1 -d:)
-	TAG=$(echo ${DIST} | cut -f2 -d:)
-	DIST="distfiles/${PROJECT}-${TAG}.tar.gz"
-	if [ ! -f ${DIST} ]
-	then
-		fetch ${HTTP_BASE}/${PROJECT}/archive/${TAG}.tar.gz -o ${DIST}
-	fi
-done
+fetch ${HTTP_BASE}/${PROJECT}/archive/refs/tags/${JASPERSTUDIO_TAG}.tar.gz -o ${DISTDIR}
+fetch ${HTTP_BASE}/${PROJECT}/releases/download/${JASPERSTUDIO_TAG}/jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}.zip -o ${DISTDIR}
