@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.babel.editor.util.UIUtils;
-import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
@@ -45,7 +43,7 @@ import com.jaspersoft.studio.model.MRoot;
 import com.jaspersoft.studio.model.util.IIconDescriptor;
 import com.jaspersoft.studio.property.ISetValueCommandProvider;
 import com.jaspersoft.studio.property.descriptor.expression.ExprUtil;
-import com.jaspersoft.studio.property.descriptor.expression.JRExpressionPropertyDescriptor;
+import com.jaspersoft.studio.property.descriptor.expression.JRPrintWhenExpressionPropertyDescriptor;
 import com.jaspersoft.studio.property.descriptor.propexpr.JPropertyExpressionsDescriptor;
 import com.jaspersoft.studio.property.descriptor.propexpr.PropertyExpressionDTO;
 import com.jaspersoft.studio.property.descriptor.propexpr.PropertyExpressionsDTO;
@@ -66,6 +64,7 @@ import net.sf.jasperreports.engine.design.JRDesignPropertyExpression;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.design.events.JRChangeEventsSupport;
 import net.sf.jasperreports.engine.design.events.JRPropertyChangeSupport;
+import net.sf.jasperreports.utils.compatibility.CompatibilityConstants;
 
 public class MColumn extends APropertyNode
 		implements IPastable, IContainer, IContainerLayout, IGraphicElement, IContainerEditPart {
@@ -218,7 +217,7 @@ public class MColumn extends APropertyNode
 
 	@Override
 	public Color getForeground() {
-		return UIUtils.getSystemColor(SWT.COLOR_WIDGET_DISABLED_FOREGROUND);
+		return UIUtils.getSystemColor(CompatibilityConstants.Colors.COLOR_WIDGET_DISABLED_FOREGROUND);
 	}
 
 	/*
@@ -285,7 +284,7 @@ public class MColumn extends APropertyNode
 	 */
 	@Override
 	public void createPropertyDescriptors(List<IPropertyDescriptor> desc) {
-		JRExpressionPropertyDescriptor printWhenExprD = new JRExpressionPropertyDescriptor(
+		JRPrintWhenExpressionPropertyDescriptor printWhenExprD = new JRPrintWhenExpressionPropertyDescriptor(
 				StandardBaseColumn.PROPERTY_PRINT_WHEN_EXPRESSION, Messages.MColumn_print_when_expression);
 		printWhenExprD.setDescription(Messages.MColumn_print_when_expression_description);
 		desc.add(printWhenExprD);

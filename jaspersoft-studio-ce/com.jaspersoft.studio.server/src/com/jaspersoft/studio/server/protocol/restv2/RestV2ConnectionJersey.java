@@ -71,6 +71,7 @@ import com.jaspersoft.jasperserver.api.metadata.xml.domain.impl.ListItem;
 import com.jaspersoft.jasperserver.api.metadata.xml.domain.impl.ResourceDescriptor;
 import com.jaspersoft.jasperserver.api.metadata.xml.domain.impl.ResourceProperty;
 import com.jaspersoft.jasperserver.dto.authority.ClientUser;
+import com.jaspersoft.jasperserver.dto.common.ErrorDescriptor;
 import com.jaspersoft.jasperserver.dto.jdbcdrivers.JdbcDriverInfo;
 import com.jaspersoft.jasperserver.dto.permissions.RepositoryPermission;
 import com.jaspersoft.jasperserver.dto.permissions.RepositoryPermissionListWrapper;
@@ -242,6 +243,8 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 			if (!doConnectLogin(monitor, sp, url, pass))
 				return false;
 		} catch (Exception e) {
+			if (e instanceof HttpResponseException && ((HttpResponseException) e).getStatusCode() == 401)
+				throw e;
 			try {
 				if (!doConnectOld(monitor, sp, url, pass))
 					return false;
@@ -302,18 +305,20 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 			throws Exception {
 		target = client.target(url + SUFFIX + "login"); //$NON-NLS-1$
 		MultivaluedMap<String, String> formData = new MultivaluedStringMap();
-		formData.add("forceDefaultRedirect", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (sp.isUseSSO()) {
 			String token = CASUtil.getToken(sp, monitor);
 			formData.add("ticket", token); //$NON-NLS-1$
 		} else {
-			formData.add("j_username", sp.getUser()); //$NON-NLS-1$
+			formData.add("forceDefaultRedirect", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+			String usr = sp.getUser();
+			if (sp.getOrganisation() != null && !Misc.isNullOrEmpty(sp.getOrganisation().trim()))
+				usr += "|" + sp.getOrganisation(); //$NON-NLS-1$
+			formData.add("j_username", usr); //$NON-NLS-1$
 			if (pwd != null)
-				formData.add("j_password", URLEncoder.encode(pwd, "UTF-8")); //$NON-NLS-1$
+				formData.add("j_password", pwd); //$NON-NLS-1$
 			if (monitor.isCanceled())
 				return false;
 		}
-		formData.add("orgId", sp.getOrganisation()); //$NON-NLS-1$
 		if (!Misc.isNullOrEmpty(sp.getLocale()))
 			formData.add("userLocale", Locale.getDefault().toString()); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!Misc.isNullOrEmpty(sp.getTimeZone()))
@@ -410,6 +415,10 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 							nrd.setWsType(ResourceDescriptor.TYPE_CONTENT_RESOURCE);
 						else if (name.endsWith(".properties")) //$NON-NLS-1$
 							nrd.setWsType(ResourceDescriptor.TYPE_RESOURCE_BUNDLE);
+						else if (name.endsWith(".pfx")) //$NON-NLS-1$
+							nrd.setWsType(ResourceDescriptor.TYPE_AZURE_CERTIFICATE);
+						else if (name.endsWith(".p12")) //$NON-NLS-1$
+							nrd.setWsType(ResourceDescriptor.TYPE_AZURE_CERTIFICATE);
 					}
 				}
 				// workaround
@@ -430,6 +439,13 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 
 	@Override
 	public ResourceDescriptor get(IProgressMonitor monitor, ResourceDescriptor rd, File f) throws Exception {
+		if (rd.getUriString() == null && rd.getIsReference() && rd.getReferenceUri() != null) {
+			ResourceDescriptor nrd = new ResourceDescriptor();
+			nrd.setUriString(rd.getReferenceUri());
+			nrd.setWsType(rd.getReferenceType());
+			rd = nrd;
+		}
+
 		if (rd.getUriString() == null || rd.getUriString().contains("<")) //$NON-NLS-1$
 			throw new Exception("wrong url"); //$NON-NLS-1$
 		String uri = rd.getUriString();
@@ -597,7 +613,7 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 			tgt = tgt.queryParam("label", rd.getLabel()); //$NON-NLS-1$
 			tgt = tgt.queryParam("overwrite", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
-			ReportParameters rprms = new ReportParameters(new ArrayList<ReportParameter>());
+			ReportParameters rprms = new ReportParameters(new ArrayList<>());
 
 			Builder req = HttpUtils.getRequest(tgt);
 
@@ -618,7 +634,8 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 		tgt = tgt.queryParam("createFolders", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		tgt = tgt.queryParam("overwrite", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		Builder req = HttpUtils.getRequest(tgt);
+		Builder req = cr instanceof ClientReportUnit ? HttpUtils.getRequest(tgt, MediaType.APPLICATION_JSON)
+				: HttpUtils.getRequest(tgt);
 		r = connector.put(req, Entity.entity(cr, "application/repository." + rtype + "+" + FORMAT), monitor); //$NON-NLS-1$ //$NON-NLS-2$
 
 		ClientResource<?> crl = null;
@@ -860,16 +877,23 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 						or.setFileName(fname); // $NON-NLS-1$
 						ee.setOutputResource(or);
 					}
-					byte[] d = readFile(r, monitor);
-					addFileContent(d, map, ee.getOutputResource(), "attachment-" + i++, "report"); //$NON-NLS-1$ //$NON-NLS-2$
-					if (ee.getAttachments() != null)
-						for (AttachmentDescriptor ror : ee.getAttachments()) {
-							tgt = target.path("reportExecutions/" + res.getRequestId() + "/exports/" + ee.getId() //$NON-NLS-1$ //$NON-NLS-2$
-									+ "/attachments/" + ror.getFileName()); //$NON-NLS-1$
-							req = HttpUtils.getRequest(tgt, ror.getContentType());
-							d = readFile(connector.get(req, monitor), monitor);
-							addFileContent(d, map, ror, "attachment-" + i++, ror.getFileName()); //$NON-NLS-1$
-						}
+					try {
+						byte[] d = readFile(r, monitor);
+						addFileContent(d, map, ee.getOutputResource(), "attachment-" + i++, "report"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (ee.getAttachments() != null)
+							for (AttachmentDescriptor ror : ee.getAttachments()) {
+								tgt = target.path("reportExecutions/" + res.getRequestId() + "/exports/" + ee.getId() //$NON-NLS-1$ //$NON-NLS-2$
+										+ "/attachments/" + ror.getFileName()); //$NON-NLS-1$
+								req = HttpUtils.getRequest(tgt, ror.getContentType());
+								d = readFile(connector.get(req, monitor), monitor);
+								addFileContent(d, map, ror, "attachment-" + i++, ror.getFileName()); //$NON-NLS-1$
+							}
+					} catch (HttpResponseException e) {
+						repExec.setErrorDescriptor(new ErrorDescriptor());
+						repExec.getErrorDescriptor().setMessage(e.getMessage());
+						repExec.getErrorDescriptor().setException(e);
+						throw e;
+					}
 				}
 			} else {
 				tgt = target.path("reportExecutions/" + res.getRequestId() + "/exports/" //$NON-NLS-1$ //$NON-NLS-2$
@@ -1004,7 +1028,7 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 					monitor);
 			if (m != null) {
 				for (ReportInputControl ric : m.getInputParameters())
-					rds.add(Rest2Soap.getInputControl(this, ric, new ResourceDescriptor()));
+					rds.add(Rest2Soap.getInputControl(ric, new ResourceDescriptor()));
 			}
 		} catch (IOException e) {
 			logger.log(Level.FINE, e.getMessage(), e);
@@ -1045,7 +1069,7 @@ public class RestV2ConnectionJersey extends ARestV2ConnectionJersey {
 		ReportInputControlsListWrapper crl = toObj(r, ReportInputControlsListWrapper.class, monitor);
 		if (crl != null) {
 			for (ReportInputControl ric : crl.getInputParameters())
-				rdunit.getChildren().add(Rest2Soap.getInputControl(this, ric, new ResourceDescriptor()));
+				rdunit.getChildren().add(Rest2Soap.getInputControl(ric, new ResourceDescriptor()));
 			for (ResourceDescriptor rd : rdunit.getChildren()) {
 				if (rd.getWsType().equals(ResourceDescriptor.TYPE_INPUT_CONTROL))
 					for (ReportInputControl ric : crl.getInputParameters()) {

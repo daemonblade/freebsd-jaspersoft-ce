@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Unpack everything
+#
+DESTDIR="jaspersoft-studio-ce"
+
+if [ ! -x bin/$(basename $0) ]
+then
+	echo "ERROR: Run this from top level"
+	exit 1
+fi
+. ./config.sh
+
+echo "INFO: Clearing ${DESTDIR}"
+rm -rf ${DESTDIR}
+
+echo "INFO: Unpacking Studio"
+tar xf distfiles/${JASPERSTUDIO_TAG}.tar.gz
+mv jaspersoft-studio-ce-${JASPERSTUDIO_TAG} ${DESTDIR}
+
+echo "INFO: Unpacking Plugin"
+unzip -q distfiles/jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}.zip
+mv jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}/* ${DESTDIR}
+rmdir jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}

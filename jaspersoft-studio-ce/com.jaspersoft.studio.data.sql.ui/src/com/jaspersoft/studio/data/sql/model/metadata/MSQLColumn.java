@@ -57,6 +57,10 @@ public class MSQLColumn extends AMSQLObject implements IDragable {
 		return remarks;
 	}
 
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
 	@Override
 	public String getToolTip() {
 		String tt = ConvertUtil.cleanDbNameFull(super.getToolTip());
@@ -121,7 +125,7 @@ public class MSQLColumn extends AMSQLObject implements IDragable {
 
 	public void addForeignKey(ForeignKey fk) {
 		if (foreignKeys == null)
-			foreignKeys = new ArrayList<ForeignKey>();
+			foreignKeys = new ArrayList<>();
 		foreignKeys.add(fk);
 	}
 }

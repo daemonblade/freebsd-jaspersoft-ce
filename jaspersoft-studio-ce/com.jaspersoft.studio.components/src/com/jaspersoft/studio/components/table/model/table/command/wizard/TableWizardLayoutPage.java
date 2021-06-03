@@ -164,6 +164,24 @@ public class TableWizardLayoutPage extends JSSHelpWizardPage {
 			notifyChange();
 		}
 	};
+	
+	private SelectionAdapter colorSelectionListener = new SelectionAdapter() {
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (altDetailButton.equals(e.widget.getData("id"))){
+				//if the color changed is the detail button force the alt detail
+				AlfaRGB detail = selectionWidget.getButtonData(detailButton);
+				AlfaRGB altDetail = selectionWidget.getButtonData(altDetailButton);
+				if (!alternateColor.getSelection() && !altDetail.equals(detail)) {
+					alternateColor.setSelection(true);
+				}
+				notifyChange();
+			} else {
+				notifyChange();	
+			}
+		}
+	};
 
 	protected TableWizardLayoutPage(boolean createTitle) {
 		super("tablepage"); //$NON-NLS-1$
@@ -240,7 +258,7 @@ public class TableWizardLayoutPage extends JSSHelpWizardPage {
 				notifyChange();
 			}
 		};
-		selectionWidget = new ColorSelectionWidget(parent, selectionListener,
+		selectionWidget = new ColorSelectionWidget(parent, colorSelectionListener,
 				schemaSelectionAdapter, ColorSelectionWidget.STYLE.BOTTOM);
 		TableStyle temp = getDefaultStyle();
 		selectionWidget.addButton(tableHeadrButton,
@@ -259,15 +277,22 @@ public class TableWizardLayoutPage extends JSSHelpWizardPage {
 				Messages.TableWizardLayoutPage_schemaGroupLabel,
 				Messages.TableWizardLayoutPage_manualColorLabel, 4);
 
-		// Create the checkbox to alternate the color
-		alternateColor = new Button(selectionWidget.getManualComposite(),
-				SWT.CHECK | SWT.WRAP);
-		alternateColor
-				.setText(Messages.TableWizardLayoutPage_alternated_rows_label);
+		// JIRA TIBCO #JSS-3000: Fix helping on BigSur and 
+		// https://community.jaspersoft.com/jaspersoft-studio/issues/13296
+		// other Mac environments (i.e runtime development)
+		Composite checkContainer = new Composite(selectionWidget.getManualComposite(), SWT.NONE);
+		checkContainer.setLayout(new GridLayout(2, false));
 		GridData checkBoxData = new GridData(GridData.FILL_HORIZONTAL);
 		checkBoxData.horizontalSpan = 4;
-		alternateColor.setLayoutData(checkBoxData);
+		checkContainer.setLayoutData(checkBoxData);
+		// Create the checkbox to alternate the color
+		alternateColor = new Button(checkContainer, SWT.CHECK);
 		alternateColor.addSelectionListener(selectionListener);
+		GridData labelData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+		Label buttonText = new Label(checkContainer, SWT.WRAP);
+		buttonText.setLayoutData(labelData);
+		buttonText.setText(Messages.TableWizardLayoutPage_alternated_rows_label);
+		
 	}
 
 	/**

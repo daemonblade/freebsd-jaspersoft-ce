@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -125,17 +126,10 @@ public class AExporter {
 	public IFile exportToIFile(AMResource res, ResourceDescriptor rd, String fkeyname, IProgressMonitor monitor)
 			throws Exception {
 		IFile f = getTempFile(res, rd, fkeyname, getExtension(res), monitor);
-		if (!f.exists()) {
-			File file = f.getFullPath().toFile();
-			file.getParentFile().mkdirs();
-			file.createNewFile();
-			IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(file.toURI());
-			if (files.length > 0) {
-				f = files[0];
-				f.getParent().refreshLocal(1, monitor);
-			}
+		if (f != null) {
+			FileUtils.createResource(f, monitor);
+			setServerLocation(res, f);
 		}
-		setServerLocation(res, f);
 		return f;
 	}
 
@@ -178,25 +172,37 @@ public class AExporter {
 			return downloadFile(res, rd, f, monitor);
 		}
 		INode root = res.getRoot();
-		IFolder ttroot = null;
-		if (root != null && root instanceof MServerProfile)
-			ttroot = ((MServerProfile) root).getTmpDir(monitor);
-		else
+		IContainer ttroot = null;
+		if (root instanceof MServerProfile) {
+			ttroot = ((MServerProfile) root).getTempWorkspaceLocation(monitor);
+		}
+		else {
 			ttroot = FileUtils.getInProjectFolder(FileUtils.createTempDir().toURI(), monitor);
+		}
 		String pfolder = rd.getParentFolder();
-		if (pfolder.endsWith("_files"))
+		if (pfolder.endsWith("_files")) {
 			pfolder = pfolder.substring(0, pfolder.lastIndexOf("_files"));
+		}
 		IResource r = ttroot.findMember(pfolder);
-		if (r != null && r instanceof IFile) {
+		if (r instanceof IFile) {
 			r.delete(true, monitor);
 			r = null;
 		}
-		if (r == null || !r.exists())
-			r = ttroot.getFolder(pfolder);
+		if (r == null || !r.exists()) {
+			if(ttroot instanceof IFolder) {
+				r = ((IFolder)ttroot).getFolder(pfolder);	
+			}
+			else if(ttroot instanceof IProject) {
+				r = ((IProject)ttroot).getFolder(pfolder);
+			}
+			else {
+				throw new Exception("The temp workspace location for the JRS files can only be a project or folder instance. Check the settings!");
+			}
+		}
 		IFolder troot = (IFolder) r;
 		String newpath = getNewFileName(rd, dextention);
 		r = troot.findMember(newpath);
-		if (r != null && r instanceof IFolder) {
+		if (r instanceof IFolder) {
 			r.delete(true, monitor);
 			r = null;
 		}

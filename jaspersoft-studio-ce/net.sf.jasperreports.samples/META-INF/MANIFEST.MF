@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Eclipse-ExtensibleAPI: true
+Bundle-ManifestVersion: 2
+Bundle-Name: JasperReports Library Samples
+Bundle-SymbolicName: net.sf.jasperreports.samples; singleton:=true
+Bundle-Version: 6.17.0.final
+Bundle-Activator: net.sf.jasperreports.samples.Activator
+Bundle-Vendor: TIBCO Software Inc.
+Require-Bundle: net.sf.jasperreports;bundle-version="6.17.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: net.sf.jasperreports.samples,
+ net.sf.jasperreports.samples.wizards
+Bundle-ClassPath: patch-library.jar,
+ .

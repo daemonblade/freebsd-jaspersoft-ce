@@ -9,7 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
 
-import org.apache.xerces.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -66,9 +67,10 @@ public class XMLParser {
 	 * Does DTD-based validation on inputSource
 	 */
 	public void doParse(InputSource inputSource) throws RuntimeException {
-
 		try {
-			XMLReader reader = new SAXParser();
+			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+			saxParserFactory.setNamespaceAware(true);
+			XMLReader reader = saxParserFactory.newSAXParser().getXMLReader();
 			reader.setErrorHandler(errorHandler);
 			reader.setContentHandler(contentHandler);
 			reader.setFeature(VALIDATION_FEATURE, true);

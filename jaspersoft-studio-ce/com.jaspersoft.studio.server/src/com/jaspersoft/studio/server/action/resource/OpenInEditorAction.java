@@ -6,8 +6,10 @@ package com.jaspersoft.studio.server.action.resource;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -24,6 +26,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.ide.IDE;
 
 import com.jaspersoft.jasperserver.api.metadata.xml.domain.impl.ResourceDescriptor;
 import com.jaspersoft.studio.book.BookUtils;
@@ -92,25 +96,29 @@ public class OpenInEditorAction extends Action {
 
 	protected boolean preDownload(AFileResource fres, IProgressMonitor monitor) {
 		INode root = fres.getRoot();
-		IFolder ttroot = null;
+		IContainer ttroot = null;
 		try {
-			if (root instanceof MServerProfile)
-				ttroot = ((MServerProfile) root).getTmpDir(monitor);
-			else
+			if (root instanceof MServerProfile) {
+				ttroot = ((MServerProfile) root).getTempWorkspaceLocation(monitor);
+			}				
+			else {
 				ttroot = FileUtils.getInProjectFolder(FileUtils.createTempDir().toURI(), monitor);
+			}
 			ResourceDescriptor rd = fres.getValue();
 			String f = rd.getParentFolder() + File.separator + rd.getName();
-			IFile file = ttroot.getFile(f);
-			if (!file.exists()) {
-				IPath p = file.getRawLocation();
-				if (p == null)
-					p = file.getFullPath();
-				File nf = p.toFile();
-				nf.getParentFile().mkdirs();
-				nf.createNewFile();
-				file.refreshLocal(1, monitor);
+			
+			IFile newFileRes = null;
+			if(ttroot instanceof IProject) {
+				newFileRes = ((IProject)ttroot).getFile(f);		
 			}
-			path = file.getFullPath();
+			else if(ttroot instanceof IFolder) {
+				newFileRes = ((IFolder)ttroot).getFile(f);
+			}
+			else {
+				throw new IOException(NLS.bind("{0} is not a valid location (i.e folder or project)", ttroot.toString()));
+			}
+			FileUtils.createResource(newFileRes, monitor);
+			path = newFileRes.getFullPath();
 		} catch (IOException | CoreException e) {
 			UIUtils.showError(e);
 		}
@@ -153,29 +161,31 @@ public class OpenInEditorAction extends Action {
 			AFileResource res = (AFileResource) obj;
 			ResourceDescriptor rd = WSClientHelper.getResource(new NullProgressMonitor(), res, res.getValue());
 			ANode parent = res.getParent();
-			int index = parent.getChildren().indexOf(res);
-			parent.removeChild(res);
-			res = (AFileResource) ResourceFactory.getResource(parent, rd, index);
-			WSClientHelper.fireResourceChanged(res);
+			if (parent != null) {
+				int index = parent.getChildren().indexOf(res);
+				parent.removeChild(res);
+				res = (AFileResource) ResourceFactory.getResource(parent, rd, index);
+				WSClientHelper.fireResourceChanged(res);
 
-			String fkeyname = ServerManager.getKey(res);
-			if (fkeyname == null)
-				return;
-			String type = rd.getWsType();
-			IFile f = null;
-			if (type.equals(ResourceDescriptor.TYPE_JRXML)) {
-				doExportJrxml(res, rd, fkeyname, monitor);
-				return;
-			} else if (type.equals(ResourceDescriptor.TYPE_IMAGE))
-				f = new ImageExporter(path).exportToIFile(res, rd, fkeyname, monitor);
-			else
-				f = new AExporter(path).exportToIFile(res, rd, fkeyname, monitor);
+				String fkeyname = ServerManager.getKey(res);
+				if (fkeyname == null)
+					return;
+				String type = rd.getWsType();
+				IFile f = null;
+				if (type.equals(ResourceDescriptor.TYPE_JRXML)) {
+					doExportJrxml(res, rd, fkeyname, monitor);
+					return;
+				} else if (type.equals(ResourceDescriptor.TYPE_IMAGE))
+					f = new ImageExporter(path).exportToIFile(res, rd, fkeyname, monitor);
+				else
+					f = new AExporter(path).exportToIFile(res, rd, fkeyname, monitor);
 
-			if (f != null) {
-				PublishUtil.savePath(f, res);
-				openEditor(f, res);
+				if (f != null) {
+					PublishUtil.savePath(f, res);
+					openEditor(f, res);
+				}
+				path = null;
 			}
-			path = null;
 		}
 	}
 
@@ -191,9 +201,12 @@ public class OpenInEditorAction extends Action {
 				jrconf.dispose();
 			}
 		}
+
+		String prjPath = f.getRawLocation().removeLastSegments(1).toOSString();
 		if (res.getParent() instanceof MReportUnit) {
 			MReportUnit runit = (MReportUnit) res.getParent();
 			List<INode> children = runit.getChildren();
+			String pfolder = path != null ? path.toFile().getParentFile().getAbsolutePath() : "";
 			for (int i = 0; i < children.size(); i++) {
 				INode n = children.get(i);
 				if (n == res)
@@ -201,12 +214,11 @@ public class OpenInEditorAction extends Action {
 				if (n instanceof AFileResource) {
 					AFileResource mfile = (AFileResource) n;
 					fkeyname = ServerManager.getKey(mfile);
-					rd = WSClientHelper.getResource(new NullProgressMonitor(), mfile, mfile.getValue());
-					if (rd != null) {
-						String pfolder = path != null ? path.toFile().getParentFile().getAbsolutePath() : "";
-
-						IPath p = Path.fromOSString(pfolder + File.separator + rd.getName());
-						exportFile(rd, fkeyname, monitor, f, runit, mfile, p);
+					IPath p = Path.fromOSString(pfolder + File.separator + mfile.getValue().getName());
+					if (!Paths.get(prjPath, mfile.getValue().getName()).toFile().exists()) {
+						rd = WSClientHelper.getResource(new NullProgressMonitor(), mfile, mfile.getValue());
+						if (rd != null)
+							exportFile(rd, fkeyname, monitor, f, runit, mfile, p);
 					}
 				}
 			}
@@ -218,9 +230,13 @@ public class OpenInEditorAction extends Action {
 		AExporter exp = null;
 		if (rd.getWsType().equals(ResourceDescriptor.TYPE_IMAGE))
 			exp = new ImageExporter(p);
-		else if (rd.getWsType().equals(ResourceDescriptor.TYPE_JRXML))
-			exp = new ImageExporter(p);
-		else
+		else if (rd.getWsType().equals(ResourceDescriptor.TYPE_JRXML)) {
+			exp = new JrxmlExporter(p);
+			if (BookUtils.isValidJRBook(f))
+				IDE.setDefaultEditor(f, JRBookEditor.BOOK_EDITOR_ID);
+			else
+				IDE.setDefaultEditor(f, JrxmlEditor.JRXML_EDITOR_ID);
+		} else
 			exp = new AExporter(p);
 		IFile file = exp.exportToIFile(mfile, rd, fkeyname, monitor);
 		if (file != null) {
@@ -238,7 +254,11 @@ public class OpenInEditorAction extends Action {
 
 	protected void openEditor(final IFile f, final AMResource res) {
 		// FIXME - temporary fix to handle the case of opening a book from JRS
-		BookUtils.checkFileResourceForDefaultEditor(f);
+		try {
+			BookUtils.checkFileResourceForDefaultEditor(f);
+		} catch (Throwable e) {
+			// we tried to do something but in case we get an error we continue
+		}
 		if (!openInEditor)
 			return;
 		UIUtils.getDisplay().asyncExec(() -> {

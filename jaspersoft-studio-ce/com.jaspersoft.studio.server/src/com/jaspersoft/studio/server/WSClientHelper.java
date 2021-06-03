@@ -28,6 +28,7 @@ import com.jaspersoft.studio.model.INode;
 import com.jaspersoft.studio.server.model.AFileResource;
 import com.jaspersoft.studio.server.model.AMResource;
 import com.jaspersoft.studio.server.model.IInputControlsContainer;
+import com.jaspersoft.studio.server.model.IResourceContainer;
 import com.jaspersoft.studio.server.model.MFolder;
 import com.jaspersoft.studio.server.model.MRDataAdapter;
 import com.jaspersoft.studio.server.model.MReportUnit;
@@ -305,7 +306,7 @@ public class WSClientHelper {
 						rd = cli.addOrModifyResource(monitor, rd, file);
 					else {
 						if (wsType.equals(ResourceDescriptor.TYPE_JRXML) && !rd.getIsNew()
-								&& rd.getName().equals("main_jrxml"))
+								&& (rd.getName().equals("main_jrxml") || rd.isMainReport()))
 							rd.setMainReport(true);
 						rd = cli.modifyReportUnitResource(monitor, mru.getValue(), rd, file);
 					}
@@ -399,6 +400,10 @@ public class WSClientHelper {
 					res.removeChildren();
 
 					listFolder(res, -1, res.getWsClient(), monitor, newrd, 0);
+				} else if (res instanceof IResourceContainer) {
+					res.removeChildren();
+					for (ResourceDescriptor rcd : newrd.getChildren())
+						ResourceFactory.getResource(res, rcd, -1);
 				}
 			} else
 				connectGetData((MServerProfile) res.getRoot(), monitor);
@@ -415,6 +420,11 @@ public class WSClientHelper {
 
 			ResourceDescriptor rd = res.getValue();
 			listFolder(res, -1, res.getWsClient(), monitor, rd, 0);
+			fireResourceChanged(res);
+		} else if (res instanceof IResourceContainer) {
+			res.removeChildren();
+			for (ResourceDescriptor rcd : res.getValue().getChildren())
+				ResourceFactory.getResource(res, rcd, -1);
 			fireResourceChanged(res);
 		}
 	}
@@ -509,14 +519,15 @@ public class WSClientHelper {
 			AMResource mr = (AMResource) list.get(pos);
 			ResourceDescriptor rd = mr.getValue();
 			String uri = rd.getUriString();
-			if (rd.getWsType() != null && !rd.getWsType().equals(ResourceDescriptor.TYPE_FOLDER))
+			if (rd.getWsType() != null)
 				if (rd.getWsType().equals(ResourceDescriptor.TYPE_REPORTUNIT)
 						|| rd.getWsType().equals(ResourceDescriptor.TYPE_DASHBOARD)
 						|| rd.getWsType().equals(ResourceDescriptor.TYPE_DOMAIN_TOPICS)
 						|| rd.getWsType().equals(ResourceDescriptor.TYPE_ADHOC_DATA_VIEW))
 					listFolder(mr, -1, cli, monitor, rd, 0);
-				else
+				else if (rd.getWsType().equals(ResourceDescriptor.TYPE_FOLDER))
 					listFolder(mr, cli, uri, monitor, 0);
+
 			return findSelected(mr.getChildren(), monitor, prunit, cli);
 		}
 		return null;

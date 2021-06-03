@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JasperReports Documentation
+Bundle-SymbolicName: net.sf.jasperreports.doc; singleton:=true
+Bundle-Version: 6.17.0.final
+Bundle-Vendor: TIBCO Software Inc.
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Eclipse-BundleShape: dir

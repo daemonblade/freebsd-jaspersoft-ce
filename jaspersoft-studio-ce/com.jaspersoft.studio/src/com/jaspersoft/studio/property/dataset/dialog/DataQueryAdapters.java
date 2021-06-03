@@ -24,7 +24,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -82,6 +81,8 @@ public abstract class DataQueryAdapters extends AQueryDesignerContainer {
 	public static final String DEFAULT_DATAADAPTER = "com.jaspersoft.studio.data.defaultdataadapter"; //$NON-NLS-1$
 	public static final String FIELD_PATH = "com.jaspersoft.studio.field.tree.path";
 	public static final String FIELD_LABEL = "com.jaspersoft.studio.field.label";
+	public static final String FIELD_NAME = "com.jaspersoft.studio.field.name";
+	public static final String EXPORTER_FILENAME = "com.jaspersoft.studio.exporter.filename";
 	private JRDesignDataset newdataset;
 
 	private JasperDesign jDesign;
@@ -135,6 +136,40 @@ public abstract class DataQueryAdapters extends AQueryDesignerContainer {
 		scopes.add(PropertyScope.FIELD);
 		spm.setScopes(scopes);
 		spm.setCategory("net.sf.jasperreports.metadata.property.category:field"); //$NON-NLS-1$
+		pm.add(spm);
+
+		spm = new StandardPropertyMetadata();
+		spm.setName(FIELD_NAME);
+		spm.setLabel("Field Name");
+		spm.setDescription("Field name.");
+		spm.setValueType(String.class.getName());
+		scopes = new ArrayList<>();
+		scopes.add(PropertyScope.FIELD);
+		spm.setScopes(scopes);
+		spm.setCategory("net.sf.jasperreports.metadata.property.category:field"); //$NON-NLS-1$
+		pm.add(spm);
+
+		spm = new StandardPropertyMetadata();
+		spm.setName(FIELD_NAME);
+		spm.setLabel("Field Name");
+		spm.setDescription("Field name.");
+		spm.setValueType(String.class.getName());
+		scopes = new ArrayList<>();
+		scopes.add(PropertyScope.FIELD);
+		spm.setScopes(scopes);
+		spm.setCategory("net.sf.jasperreports.metadata.property.category:field"); //$NON-NLS-1$
+		pm.add(spm);
+
+		spm = new StandardPropertyMetadata();
+		spm.setName(EXPORTER_FILENAME);
+		spm.setLabel("Exported Filename");
+		spm.setDescription("The prefix of the exported file name. Minimum 3 chars long. Will be created by OS as a temporary file.");
+		spm.setValueType(String.class.getName());
+		scopes = new ArrayList<>();
+		scopes.add(PropertyScope.REPORT);
+		scopes.add(PropertyScope.CONTEXT);
+		spm.setScopes(scopes);
+		spm.setCategory("net.sf.jasperreports.metadata.property.category:report"); //$NON-NLS-1$
 		pm.add(spm);
 
 		PropertyMetadataRegistry.addMetadata(pm);
@@ -303,7 +338,7 @@ public abstract class DataQueryAdapters extends AQueryDesignerContainer {
 				lang = "SQL"; //$NON-NLS-1$
 				langCombo.setText("SQL"); //$NON-NLS-1$
 			}
-			langCombo.setToolTipText(lang); 
+			langCombo.setToolTipText(lang);
 			((JRDesignQuery) newdataset.getQuery()).setLanguage(lang);
 			final IQueryDesigner designer = qdfactory.getDesigner(lang);
 			langLayout.topControl = designer.getControl();

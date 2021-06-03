@@ -39,6 +39,7 @@ import com.jaspersoft.studio.server.model.MJar;
 import com.jaspersoft.studio.server.model.MJrxml;
 import com.jaspersoft.studio.server.model.MListOfValues;
 import com.jaspersoft.studio.server.model.MRAccessGrantSchema;
+import com.jaspersoft.studio.server.model.MRAzureCertificate;
 import com.jaspersoft.studio.server.model.MRCSS;
 import com.jaspersoft.studio.server.model.MRDataAdapter;
 import com.jaspersoft.studio.server.model.MRFont;
@@ -228,6 +229,7 @@ public class AddResourcePage extends JSSHelpWizardPage {
 			new MRImage(root, MRImage.createDescriptor(parent), -1);
 			new MRCSS(root, MRCSS.createDescriptor(parent), -1);
 			new MRSecureFile(root, MRSecureFile.createDescriptor(parent), -1);
+			new MRAzureCertificate(root, MRAzureCertificate.createDescriptor(parent), -1);
 			new MContentResource(root, MContentResource.createDescriptor(parent), -1);
 			new MRStyleTemplate(root, MRStyleTemplate.createDescriptor(parent), -1);
 			new MXmlFile(root, MXmlFile.createDescriptor(parent), -1);
@@ -235,6 +237,7 @@ public class AddResourcePage extends JSSHelpWizardPage {
 			new MRDataAdapter(root, MRDataAdapter.createDescriptor(parent), -1);
 
 			if (parent instanceof MReportUnit) {
+				new MInputControl(root, MInputControl.createDescriptor(parent), -1);
 				new MReference(root, MReference.createDescriptor(parent), -1);
 				boolean dsexists = false;
 				for (INode n : parent.getChildren()) {

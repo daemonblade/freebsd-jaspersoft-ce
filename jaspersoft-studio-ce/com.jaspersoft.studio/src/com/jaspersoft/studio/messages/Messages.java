@@ -225,6 +225,7 @@ public class Messages extends NLS {
 	public static String ASPropertyWidget_0;
 	public static String ASPropertyWidget_1;
 	public static String ASPropertyWidget_2;
+	public static String ASystemViewer_1;
 	public static String ATableComboContribution_presets_label;
 	public static String ATreeWizardDataEditorComposite_Title;
 	public static String BandConstraintCommand_band_resized;
@@ -772,6 +773,8 @@ public class Messages extends NLS {
 	public static String ExportAsXlsAction_filternames;
 	public static String ExportAsXlsAction_title;
 	public static String ExportAsXlsAction_tooltip;
+	public static String ExportAsXlsMetadataAction_title;
+	public static String ExportAsXlsMetadataAction_tooltip;
 	public static String ExportAsXlsxAction_title;
 	public static String ExportAsXlsxAction_tooltip;
 	public static String ExportAsXmlAction_ext1;

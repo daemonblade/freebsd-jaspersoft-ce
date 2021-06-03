@@ -70,6 +70,7 @@ import net.sf.jasperreports.engine.JRPropertiesMap;
 import net.sf.jasperreports.engine.JRPropertiesUtil;
 import net.sf.jasperreports.properties.PropertyMetadata;
 import net.sf.jasperreports.properties.StandardPropertyMetadata;
+import net.sf.jasperreports.utils.compatibility.CompatibilityConstants;
 
 /**
  * List field editor to edit the JSS properties. The properties are shown as key
@@ -458,7 +459,18 @@ public class PropertyListFieldEditor extends FieldEditor {
 		Properties props = FileUtils.load(store.getString(FilePrefUtil.NET_SF_JASPERREPORTS_JRPROPERTIES));
 		List<Pair> input = new ArrayList<>();
 		for (String key : getPropertyKeys())
-			input.add(new Pair((String) key, props.getProperty(key)));
+			input.add(new Pair(key, props.getProperty(key)));
+		for (String key : props.stringPropertyNames()) {
+			boolean found = false;
+			for (Pair pair : input)
+				if (pair.key.equals(key)) {
+					found = true;
+					break;
+				}
+			if (!found)
+				input.add(new Pair(key, props.getProperty(key)));
+		}
+
 		return input;
 	}
 
@@ -475,7 +487,7 @@ public class PropertyListFieldEditor extends FieldEditor {
 				input = new ArrayList<>();
 				for (String key : getPropertyKeys()) {
 					String value = props.getProperty(key);
-					input.add(new Pair((String) key, value));
+					input.add(new Pair(key, value));
 				}
 				viewer.setInput(input);
 			} catch (IOException e) {
@@ -781,11 +793,11 @@ public class PropertyListFieldEditor extends FieldEditor {
 			if (p.getValue() == null) {
 				PropertyMetadata pm = pmMap.get(p.getKey());
 				if (pm.isDeprecated() && index == 0)
-					return SWTResourceManager.getColor(SWT.COLOR_WIDGET_DISABLED_FOREGROUND);
+					return SWTResourceManager.getColor(CompatibilityConstants.Colors.COLOR_WIDGET_DISABLED_FOREGROUND);
 				if (index == 1) {
 					String def = pm.getDefaultValue();
 					if (def != null)
-						return SWTResourceManager.getColor(SWT.COLOR_WIDGET_DISABLED_FOREGROUND);
+						return SWTResourceManager.getColor(CompatibilityConstants.Colors.COLOR_WIDGET_DISABLED_FOREGROUND);
 				}
 			}
 			return null;

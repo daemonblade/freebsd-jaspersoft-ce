@@ -5,10 +5,12 @@
 package com.jaspersoft.studio.server.wizard.resource.page.selector;
 
 import com.jaspersoft.jasperserver.api.metadata.xml.domain.impl.ResourceDescriptor;
-import com.jaspersoft.jasperserver.dto.resources.ResourceMediaType;
 import com.jaspersoft.jasperserver.dto.resources.ClientFile.FileType;
+import com.jaspersoft.jasperserver.dto.resources.ResourceMediaType;
 import com.jaspersoft.studio.server.model.AMResource;
 import com.jaspersoft.studio.server.model.MJrxml;
+import com.jaspersoft.studio.server.preferences.JRSPreferencesPage;
+import com.jaspersoft.studio.utils.jasper.JasperReportsConfiguration;
 
 public class SelectorJrxml2 extends ASelector {
 	@Override
@@ -22,8 +24,13 @@ public class SelectorJrxml2 extends ASelector {
 	@Override
 	protected void setupResource(ResourceDescriptor rd) {
 		rd.setMainReport(true);
-		rd.setName("main_jrxml");
-		rd.setLabel("Main Jrxml");
+		JasperReportsConfiguration jConfig = res.getJasperConfiguration();
+		if (jConfig == null) {
+			jConfig = JasperReportsConfiguration.getDefaultInstance();
+			res.setJasperConfiguration(jConfig);
+		}
+		rd.setName(JRSPreferencesPage.getDefaultMainReportName(jConfig));
+		rd.setLabel(JRSPreferencesPage.getDefaultMainReportLabel(jConfig));
 	}
 
 	@Override

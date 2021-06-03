@@ -29,7 +29,6 @@ import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
 import org.eclipse.core.internal.net.AbstractProxyProvider;
 import org.eclipse.core.internal.net.ProxyManager;
-import org.eclipse.core.internal.net.StringMatcher;
 import org.eclipse.core.net.proxy.IProxyChangeEvent;
 import org.eclipse.core.net.proxy.IProxyChangeListener;
 import org.eclipse.core.net.proxy.IProxyData;
@@ -48,6 +47,7 @@ import com.jaspersoft.studio.server.protocol.restv2.RestV2Connection;
 
 import net.sf.jasperreports.eclipse.ui.util.UIUtils;
 import net.sf.jasperreports.eclipse.util.Misc;
+import net.sf.jasperreports.utils.compatibility.StringMatcher;
 
 public class HttpUtils {
 	public static URI toSafeUri(final URL url) throws URISyntaxException {
