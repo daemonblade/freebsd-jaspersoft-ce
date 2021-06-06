@@ -7,6 +7,7 @@
 LINUX_DIRS="
 	jre.linux.gtk.x86_64.feature
 	aggregator/ant-scripts/rootfiles/linux
+	com.jaspersoft.studio/libnative/Linux
 "
 
 if [ ! -x bin/$(basename $0) ]
@@ -33,7 +34,7 @@ rmdir jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}
 rename_arch ()
 {
 	# Rename to FreeBSD TARGET_ARCH names
-	F=$(echo $1 | sed -e s/linux/freebsd/)
+	F=$(echo $1 | sed -e s/linux/freebsd/ | sed -e s/Linux/FreeBSD/)
 	case $F in
 	*.x86_64*)
 		echo $(echo $F | sed -e 's/x86_64/amd64/');;
