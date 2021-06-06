@@ -1,0 +1,32 @@
+#!/bin/sh
+#set -x
+#
+# Attempt Jaspersoft build
+#
+ARCH=$(uname -p)
+export JAVA_HOME="/usr/local/openjdk11" MAVEN_OPTS="-Xmx1024m"
+
+if [ ! -x bin/$(basename $0) ]
+then
+	echo "ERROR: Run this from top level"
+	exit 1
+fi
+. ./config.sh
+
+#
+# Maven build
+#
+BUILD_SUFFIX=$(echo $* | tr -d '[:space:]/')
+
+MAVEN_REPO="maven-repo.${JASPERSTUDIO_TAG}"
+mkdir -p ${MAVEN_REPO}
+REPO_PATH=$(realpath ${MAVEN_REPO})
+
+(
+	cd ${SRCDIR}/aggregator
+	mvn $* \
+		-DskipTests=true \
+		-Dmaven.repo.local=${REPO_PATH} \
+		-Dnative=gtk.freebsd.${ARCH} \
+		clean package 2>&1
+) | tee build-$(date '+%Y%m%d-%H%M')${BUILD_SUFFIX}.log

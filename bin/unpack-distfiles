@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+#set -x
 #
 # 1. Unpack aggregator and projects
 # 2. Reorg source files, reusing Linux sources as the base for FreeBSD builds.
@@ -8,8 +8,6 @@ LINUX_DIRS="
 	jre.linux.gtk.x86_64.feature
 	aggregator/ant-scripts/rootfiles/linux
 "
-SRCDIR="jaspersoft-studio-ce"
-BASELINE=".baseline.${SRCDIR}"
 
 if [ ! -x bin/$(basename $0) ]
 then
@@ -17,6 +15,8 @@ then
 	exit 1
 fi
 . ./config.sh
+
+BASELINE=".baseline.${SRCDIR}"
 
 echo "INFO: Clearing ${SRCDIR}"
 rm -rf ${SRCDIR}
@@ -35,13 +35,7 @@ rename_arch ()
 	# Rename to FreeBSD TARGET_ARCH names
 	F=$(echo $1 | sed -e s/linux/freebsd/)
 	case $F in
-	*.arm)
-		echo $(echo $F | sed -e 's/arm/armv7/');;
-	*.ppc64le)
-		echo $(echo $F | sed -e 's/ppc64le/powerpc64/');;
-	*.x86)
-		echo $(echo $F | sed -e 's/x86/i386/');;
-	*.x86_64)
+	*.x86_64*)
 		echo $(echo $F | sed -e 's/x86_64/amd64/');;
 	*)
 		echo ${F};;
