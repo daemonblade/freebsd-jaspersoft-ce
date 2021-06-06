@@ -13,6 +13,8 @@ then
 fi
 . ./config.sh
 
+TARGET=""
+
 #
 # Maven build
 #
@@ -27,6 +29,5 @@ REPO_PATH=$(realpath ${MAVEN_REPO})
 	mvn $* \
 		-DskipTests=true \
 		-Dmaven.repo.local=${REPO_PATH} \
-		-Dnative=gtk.freebsd.${ARCH} \
 		clean package 2>&1
 ) | tee build-$(date '+%Y%m%d-%H%M')${BUILD_SUFFIX}.log

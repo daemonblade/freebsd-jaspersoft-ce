@@ -23,11 +23,13 @@
 			-artifactRepository file:/Users/mrabbi/Sviluppo/jaspersoftstudio/updatesite/jss381target \
 			-source /Users/mrabbi/Sviluppo/jaspersoftstudio/targetPlatforms/macserver/jss_381 -compress -append -publishArtifacts
 		-->
+		<!--
 		<repository>
 			<id>jss381TargetPlaftorm</id>
 			<layout>p2</layout>
 			<url>file://${targetplatform.repo}</url>
 		</repository>
+		-->
 		<!-- The online repositories 
 		<repository>
 			<id>juno</id>
