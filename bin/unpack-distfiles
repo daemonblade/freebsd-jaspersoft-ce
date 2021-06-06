@@ -1,8 +1,15 @@
 #!/bin/sh
+set -x
 #
-# Unpack everything
+# 1. Unpack aggregator and projects
+# 2. Reorg source files, reusing Linux sources as the base for FreeBSD builds.
 #
-DESTDIR="jaspersoft-studio-ce"
+LINUX_DIRS="
+	jre.linux.gtk.x86_64.feature
+	aggregator/ant-scripts/rootfiles/linux
+"
+SRCDIR="jaspersoft-studio-ce"
+BASELINE=".baseline.${SRCDIR}"
 
 if [ ! -x bin/$(basename $0) ]
 then
@@ -11,14 +18,51 @@ then
 fi
 . ./config.sh
 
-echo "INFO: Clearing ${DESTDIR}"
-rm -rf ${DESTDIR}
+echo "INFO: Clearing ${SRCDIR}"
+rm -rf ${SRCDIR}
 
 echo "INFO: Unpacking Studio"
 tar xf distfiles/${JASPERSTUDIO_TAG}.tar.gz
-mv jaspersoft-studio-ce-${JASPERSTUDIO_TAG} ${DESTDIR}
+mv jaspersoft-studio-ce-${JASPERSTUDIO_TAG} ${SRCDIR}
 
 echo "INFO: Unpacking Plugin"
 unzip -q distfiles/jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}.zip
-mv jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}/* ${DESTDIR}
+mv jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}/* ${SRCDIR}
 rmdir jasperreports-eclipse-plugin-${JASPERSTUDIO_TAG}
+
+rename_arch ()
+{
+	# Rename to FreeBSD TARGET_ARCH names
+	F=$(echo $1 | sed -e s/linux/freebsd/)
+	case $F in
+	*.arm)
+		echo $(echo $F | sed -e 's/arm/armv7/');;
+	*.ppc64le)
+		echo $(echo $F | sed -e 's/ppc64le/powerpc64/');;
+	*.x86)
+		echo $(echo $F | sed -e 's/x86/i386/');;
+	*.x86_64)
+		echo $(echo $F | sed -e 's/x86_64/amd64/');;
+	*)
+		echo ${F};;
+	esac
+}
+(
+	echo "INFO: Renaming native files"
+	cd ${SRCDIR}
+
+	for D in ${LINUX_DIRS}
+	do
+		if [ ! -e ${D} ]
+		then
+			continue
+		fi
+
+		NEWNAME=$(rename_arch ${D})
+		mv ${D} ${NEWNAME}
+	done
+)
+
+# Make a baseline copy
+echo "INFO: Making baseline copy"
+cd ${SRCDIR} && find . -print | cpio -pdum ../${BASELINE}

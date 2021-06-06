@@ -1,6 +1,9 @@
 # distribution archive
 distfiles
 
+# baseline comparator
+.baseline*
+
 # Build artifacts
 /maven-repo.*
 /build-*.log
